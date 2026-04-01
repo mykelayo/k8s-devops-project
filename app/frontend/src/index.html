@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Dashboard | Kubernetes Project</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>
+                    DevOps Dashboard
+                </h1>
+                <div class="badge-group">
+                    <span class="badge" id="namespaceBadge">Namespace: Loading...</span>
+                    <span class="badge" id="versionBadge">v2.0.0</span>
+                </div>
+            </div>
+            <p class="subtitle">Kubernetes DevOps Project | GitOps Pipeline</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- System Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>System Information</h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="info-label">Pod Name:</span>
+                        <span class="info-value" id="podName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Pod IP:</span>
+                        <span class="info-value" id="podIP">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Hostname:</span>
+                        <span class="info-value" id="hostname">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Environment:</span>
+                        <span class="info-value" id="environment">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Uptime:</span>
+                        <span class="info-value" id="uptime">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visit Counter Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Visit Statistics</h2>
+                </div>
+                <div class="card-content">
+                    <div class="counter-container">
+                        <div class="counter-value" id="visits">0</div>
+                        <div class="counter-label">Total Visits</div>
+                    </div>
+                    <button class="btn" id="resetBtn">
+                        <span>🔄</span> Reset Counter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Environment Variables Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🔧</span>
+                    <h2>Configuration</h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="info-label">Service Name:</span>
+                        <span class="info-value" id="serviceName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Replica ID:</span>
+                        <span class="info-value" id="replicaId">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Headers Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📡</span>
+                    <h2>Request Info</h2>
+                </div>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="info-label">Last Updated:</span>
+                        <span class="info-value" id="timestamp">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">API Version:</span>
+                        <span class="info-value" id="apiVersion">-</span>
+                    </div>
+                    <button class="btn btn-small" id="refreshBtn">
+                        <span>🔄</span> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="architecture">
+            <h3>Architecture Overview</h3>
+            <div class="arch-diagram">
+                <div class="arch-node">GitHub Actions</div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">ECR</div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">Argo CD</div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">EKS Cluster</div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">Frontend/Backend</div>
+            </div>
+            <div class="arch-note">
+                <span> CI/CD Pipeline</span>
+                <span> GitOps</span>
+                <span> Auto-scaling</span>
+                <span> Monitoring</span>
+            </div>
+        </div>
+
+        <!-- Status Footer -->
+        <footer>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking backend connection...</span>
+            </div>
+            <div class="footer-links">
+                <span>Built with Docker + Kubernetes</span>
+                <span>|</span>
+                <span>Prometheus | Grafana | Loki </span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

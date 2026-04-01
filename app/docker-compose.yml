@@ -6,7 +6,7 @@ services:
     environment:
       - ENVIRONMENT=development
       - NAMESPACE=local
-      - SERVICE_NAME=backend-service-local
+      - SERVICE_NAME=backend-service
     restart: unless-stopped
     networks:
       - app-network

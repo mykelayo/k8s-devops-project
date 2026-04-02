@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Test backend
 echo -e "${YELLOW}Testing backend...${NC}"
-cd app/backend
+cd ../app/backend
 
 # Install test dependencies if not present
 if [ ! -d "venv" ]; then

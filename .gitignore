@@ -1,1 +1,32 @@
+# Terraform
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+
+# Environment files
+.env
+.env.local
+.env.production
 .venv
+
+
+# IDE
+.vscode/
+.idea/
+
+# Local testing
+venv/
+__pycache__/
+*.pyc
+
+# Docker
+*.log
+
+# Aws
+aws
+
+# Python & Coverage 
+__pycache__
+.pytest_cache
+.coverage

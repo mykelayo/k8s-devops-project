@@ -1,5 +1,11 @@
 import pytest
 import json
+import sys
+import os
+
+# Add parent directory to path so Python can find main.py
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from main import app
 
 @pytest.fixture

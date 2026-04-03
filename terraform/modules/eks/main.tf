@@ -94,7 +94,9 @@ resource "aws_security_group" "node_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, { Name = "${var.cluster_name}-node-sg" })
+  tags = merge(var.tags, { 
+    Name = "${var.cluster_name}-node-sg" 
+  })
 }
 
 # Security group rule for cluster communication

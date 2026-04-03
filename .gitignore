@@ -3,6 +3,8 @@ terraform/terraform.tfvars
 terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
 
 # Environment files
 .env

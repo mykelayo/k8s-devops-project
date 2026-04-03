@@ -29,7 +29,7 @@ make install-all
 make frontend
 ```
 
-## 📊 Architecture
+## Architecture
 ![Architecture](screenshots/architecture.png)
 
 ## Project Contents
@@ -189,11 +189,11 @@ kubectl cluster-info
 ```
 
 ## Infrastructure Created
-- ✅ VPC with public/private subnets
-- ✅ EKS Cluster (control plane)
-- ✅ 2 Worker nodes (t3.medium)
-- ✅ ECR repositories
-- ✅ IAM roles and policies
+- VPC with public/private subnets
+- EKS Cluster (control plane)
+- 2 Worker nodes (t3.medium)
+- ECR repositories
+- IAM roles and policies
 
 ## Estimated Time: 10-15 minutes
 ## Cost: Within AWS Free Tier
@@ -346,7 +346,7 @@ kubectl get applications -n argocd devops-app -w
 ```markdown
 # Cleanup Resources
 
-## ⚠️ Warning: This will delete ALL resources and incur costs if not done properly.
+## Warning: This will delete ALL resources and incur costs if not done properly.
 
 ## Step 1: Delete Kubernetes Resources
 ```bash

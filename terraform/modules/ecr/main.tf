@@ -18,39 +18,39 @@ resource "aws_ecr_repository" "repos" {
   })
 }
 
-# # ECR Lifecycle policy to clean up old images
-# resource "aws_ecr_lifecycle_policy" "cleanup" {
-#   for_each = aws_ecr_repository.repos
+# ECR Lifecycle policy to clean up old images
+resource "aws_ecr_lifecycle_policy" "cleanup" {
+  for_each = aws_ecr_repository.repos
   
-#   repository = each.value.name
+  repository = each.value.name
   
-#   policy = jsonencode({
-#     rules = [
-#       {
-#         rulePriority = 1
-#         description  = "Expire untagged images after 7 days"
-#         selection = {
-#           tagStatus   = "untagged"
-#           countType   = "sinceImagePushed"
-#           countUnit   = "days"
-#           countNumber = 7
-#         }
-#         action = {
-#           type = "expire"
-#         }
-#       },
-#       {
-#         rulePriority = 2
-#         description  = "Keep last 10 tagged images"
-#         selection = {
-#           tagStatus   = "tagged"
-#           countType   = "imageCountMoreThan"
-#           countNumber = 10
-#         }
-#         action = {
-#           type = "expire"
-#         }
-#       }
-#     ]
-#   })
-# }
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only 5 most recent images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 5
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Expire untagged images after 14 days"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 14
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}

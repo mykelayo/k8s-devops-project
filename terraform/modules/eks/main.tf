@@ -89,6 +89,11 @@ resource "aws_iam_role_policy_attachment" "ec2_container_registry_readonly" {
   role       = aws_iam_role.eks_node_group.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks_ssm_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.eks_node_group.name
+}
+
 # Security Group for EKS nodes
 resource "aws_security_group" "node_group" {
   name        = "${var.cluster_name}-node-sg"

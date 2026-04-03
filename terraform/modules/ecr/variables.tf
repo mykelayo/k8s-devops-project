@@ -1,7 +1,6 @@
 variable "project_name" {
   description = "Name of the project"
   type        = string
-  default     = "k8s-devops-project"
 }
 
 variable "repositories" {
@@ -12,7 +11,6 @@ variable "repositories" {
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "dev"
 }
 
 variable "tags" {

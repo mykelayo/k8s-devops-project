@@ -1,5 +1,5 @@
 # Multi-stage build
-FROM python:3.11-slim as builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
@@ -13,10 +13,10 @@ COPY requirements.txt .
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Final stage
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser -u 1000 appuser
+RUN groupadd -r appuser && useradd -r -g appuser -u 10001 appuser
 
 WORKDIR /app
 
@@ -32,7 +32,10 @@ ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')" || exit 1
+    CMD python -c "\
+        import urllib.request, sys; \
+        r = urllib.request.urlopen('http://localhost:5000/api/health'); \
+        sys.exit(0 if r.status == 200 else 1)"
 
 EXPOSE 5000
 

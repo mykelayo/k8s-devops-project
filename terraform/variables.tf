@@ -45,19 +45,13 @@ variable "public_subnet_cidrs" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "devops-project-cluster"
+  default     = "k8s-devops-project"
 }
 
 variable "cluster_version" {
   description = "Kubernetes version for EKS cluster"
   type        = string
-  default     = "1.29"
-}
-
-variable "kubernetes_version" {
-  description = "Kubernetes version for EKS cluster"
-  type        = string
-  default     = "1.29"
+  default     = "1.32"
 }
 
 variable "node_instance_types" {
@@ -98,6 +92,7 @@ variable "tags" {
   default = {
     "Project"     = "K8s-DevOps-Project"
     "Owner"       = "Michael"
-    "CostCenter"  = "Development"
-  }
+    "ManagedBy"   = "Terraform"
+    "Environment" = "Dev"
+    }
 }

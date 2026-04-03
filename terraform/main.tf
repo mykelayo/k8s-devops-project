@@ -9,7 +9,7 @@ module "vpc" {
   availability_zones    = var.availability_zones
   private_subnet_cidrs  = var.private_subnet_cidrs
   public_subnet_cidrs   = var.public_subnet_cidrs
-  
+
   tags = var.tags
 }
 
@@ -34,7 +34,8 @@ module "eks" {
 # ECR Module - Container registries
 module "ecr" {
   source = "./modules/ecr"
-  
+
+  project_name = var.project_name
   repositories = var.ecr_repositories
   environment  = var.environment
   

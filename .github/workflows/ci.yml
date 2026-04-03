@@ -10,7 +10,8 @@ env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY_BACKEND: ${{ vars.ECR_BACKEND_NAME }}
   ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_FRONTEND_NAME }}
-
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 jobs:
   test-backend:
     runs-on: ubuntu-latest
@@ -21,7 +22,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: ' 3.13.2'
 
     - name: Install dependencies
       run: |
@@ -33,12 +34,6 @@ jobs:
       run: |
         cd app/backend
         pytest tests/ -v --cov=. --cov-report=xml --cov-report=term
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./app/backend/coverage.xml
-        fail_ci_if_error: false
 
   security-scan:
     runs-on: ubuntu-latest
@@ -57,7 +52,7 @@ jobs:
       run: |
         cd app/backend
         pip install safety
-        safety check -r requirements.txt --full-report || true  # Don't fail on warnings
+        safety scan -r requirements.txt --continue-on-error
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -107,7 +102,9 @@ jobs:
         tags: |
           ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:latest
           ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }}
-
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
     - name: Update Kubernetes manifests
       run: |
         # Update image tags in kustomization.yaml
@@ -120,6 +117,7 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+        git pull --rebase origin ${{ github.ref_name }}
         git add kubernetes/overlays/dev/kustomization.yaml
         git add kubernetes/base/deployment-backend.yaml
         git add kubernetes/base/deployment-frontend.yaml

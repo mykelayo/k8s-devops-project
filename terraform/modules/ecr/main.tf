@@ -3,6 +3,9 @@ resource "aws_ecr_repository" "repos" {
   
   name = "${var.project_name}-${each.value}-${var.environment}"
   
+  # force delete even with images (for the project alone)
+  force_delete = true
+
   image_scanning_configuration {
     scan_on_push = true
   }

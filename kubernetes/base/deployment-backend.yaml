@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ${ECR_URL}/devops-project-backend:latest  # Will be replaced by CI/CD
+        image: ${ECR_URL}/devops-project-backend:c2e4fae52083d95a76c65ad4c0e64e877acc8586  # Will be replaced by CI/CD
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

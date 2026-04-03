@@ -13,10 +13,10 @@ patches:
 images:
 - name: ${ECR_URL}/devops-project-backend
   newName: ${ECR_URL}/devops-project-backend
-  newTag: dev-latest
+  newTag: c2e4fae52083d95a76c65ad4c0e64e877acc8586
 - name: ${ECR_URL}/devops-project-frontend
   newName: ${ECR_URL}/devops-project-frontend
-  newTag: dev-latest
+  newTag: c2e4fae52083d95a76c65ad4c0e64e877acc8586
 
 commonLabels:
   environment: dev

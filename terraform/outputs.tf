@@ -76,3 +76,19 @@ output "aws_auth_configmap_command" {
   description = "Command to update aws-auth configmap"
   value       = "kubectl edit configmap aws-auth -n kube-system"
 }
+
+output "ecr_repository_names" {
+  description = "Names of ECR repositories"
+  value = {
+    backend  = aws_ecr_repository.repos["backend"].name
+    frontend = aws_ecr_repository.repos["frontend"].name
+  }
+}
+
+output "ecr_repository_urls" {
+  description = "URLs of ECR repositories"
+  value = {
+    backend  = aws_ecr_repository.repos["backend"].repository_url
+    frontend = aws_ecr_repository.repos["frontend"].repository_url
+  }
+}

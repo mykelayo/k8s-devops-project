@@ -8,8 +8,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY_BACKEND: devops-project-backend
-  ECR_REPOSITORY_FRONTEND: devops-project-frontend
+  ECR_REPOSITORY_BACKEND: ${{ vars.ECR_BACKEND_NAME }}
+  ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_FRONTEND_NAME }}
 
 jobs:
   test-backend:

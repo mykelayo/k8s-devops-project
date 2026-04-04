@@ -11,12 +11,12 @@ patches:
 - path: configmap-patch.yaml
 
 images:
-- name: ${ECR_URL}/devops-project-backend
-  newName: ${ECR_URL}/devops-project-backend
-  newTag: prod-latest
-- name: ${ECR_URL}/devops-project-frontend
-  newName: ${ECR_URL}/devops-project-frontend
-  newTag: prod-latest
+- name: REGISTRY/devops-project-backend
+  newName: REGISTRY/devops-project-backend
+  newTag: latest
+- name: REGISTRY/devops-project-frontend
+  newName: REGISTRY/devops-project-frontend
+  newTag: latest
 
 commonLabels:
   environment: production

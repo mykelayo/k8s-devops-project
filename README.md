@@ -53,12 +53,6 @@ make setup-cluster
 make deploy-dev
 ```
 
-Or run everything at once:
-
-```bash
-make install-all
-```
-
 ## Project Structure
 
 ```

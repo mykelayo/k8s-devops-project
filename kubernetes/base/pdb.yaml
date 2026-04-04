@@ -1,0 +1,29 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: devops-app
+  labels:
+    app: backend
+    component: availability
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend
+
+---
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: devops-app
+  labels:
+    app: frontend
+    component: availability
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend

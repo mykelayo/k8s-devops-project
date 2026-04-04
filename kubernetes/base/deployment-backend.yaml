@@ -7,6 +7,7 @@ metadata:
     app: backend
     component: api
     version: v1
+
 spec:
   replicas: 2
   selector:
@@ -17,6 +18,7 @@ spec:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+
   template:
     metadata:
       labels:
@@ -28,10 +30,11 @@ spec:
         prometheus.io/port: "5000"
         prometheus.io/path: "/metrics"
         prometheus.io/scheme: "http"
+
     spec:
       containers:
       - name: backend
-        image: ${ECR_URL}/devops-project-backend:c2e4fae52083d95a76c65ad4c0e64e877acc8586  # Will be replaced by CI/CD
+        image: REGISTRY/devops-project-backend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
@@ -48,11 +51,6 @@ spec:
             configMapKeyRef:
               name: app-config
               key: SERVICE_NAME
-        - name: API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: API_KEY
         - name: NAMESPACE
           valueFrom:
             fieldRef:
@@ -65,6 +63,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+
         resources:
           requests:
             memory: "128Mi"
@@ -72,6 +71,15 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+
+        # Container-level security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+
         livenessProbe:
           httpGet:
             path: /api/health
@@ -80,6 +88,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
+
         readinessProbe:
           httpGet:
             path: /api/health
@@ -89,6 +98,7 @@ spec:
           timeoutSeconds: 3
           successThreshold: 1
           failureThreshold: 3
+
         startupProbe:
           httpGet:
             path: /api/health
@@ -96,24 +106,27 @@ spec:
           initialDelaySeconds: 0
           periodSeconds: 5
           failureThreshold: 30
-      # Security context
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-      # Node affinity for better scheduling
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - backend
-              topologyKey: kubernetes.io/hostname
-      # Termination grace period
-      terminationGracePeriodSeconds: 30
+
+        # Pod-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 10001
+          runAsGroup: 10001
+          fsGroup: 10001
+          seccompProfile:
+            type: RuntimeDefault
+
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - backend
+                topologyKey: kubernetes.io/hostname
+
+        terminationGracePeriodSeconds: 30

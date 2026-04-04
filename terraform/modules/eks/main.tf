@@ -9,11 +9,29 @@ resource "aws_eks_cluster" "main" {
     endpoint_public_access  = true
   }
 
+  enabled_cluster_log_types = [
+    "api",
+    "audit",
+    "authenticator",
+    "controllerManager",
+    "scheduler",
+  ]
+
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy,
     aws_iam_role_policy_attachment.eks_vpc_resource_controller,
   ]
 }
+
+resource "aws_cloudwatch_log_group" "eks_cluster" {
+  name              = "/aws/eks/${var.cluster_name}/cluster"
+  retention_in_days = 30
+
+  tags = merge(var.tags, {
+    Name = "${var.cluster_name}-control-plane-logs"
+  })
+}
+
 
 # IAM Role for EKS Cluster
 resource "aws_iam_role" "eks_cluster" {

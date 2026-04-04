@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ${ECR_URL}/devops-project-frontend:c2e4fae52083d95a76c65ad4c0e64e877acc8586  # Will be replaced by CI/CD
+        image: REGISTRY/devops-project-frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -41,6 +41,7 @@ spec:
             configMapKeyRef:
               name: app-config
               key: BACKEND_URL
+
         resources:
           requests:
             memory: "64Mi"
@@ -48,6 +49,27 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+        
+        # Container-level security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+          add:
+          - NET_BIND_SERVICE
+
+        volumeMounts:
+        - name: nginx-cache
+          mountPath: /var/cache/nginx    
+        - name: nginx-run
+          mountPath: /var/run            
+        - name: nginx-logs
+          mountPath: /var/log/nginx     
+        - name: tmp
+          mountPath: /tmp                
+
         livenessProbe:
           httpGet:
             path: /health
@@ -65,10 +87,33 @@ spec:
           timeoutSeconds: 3
           successThreshold: 1
           failureThreshold: 3
+
+      # Pod-level security context
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
+        runAsUser: 101 
         runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+      - name: nginx-cache
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
+      - name: nginx-run
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Mi
+      - name: nginx-logs
+        emptyDir:
+          medium: Memory
+          sizeLimit: 32Mi
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 16Mi
+
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -81,4 +126,5 @@ spec:
                   values:
                   - frontend
               topologyKey: kubernetes.io/hostname
+
       terminationGracePeriodSeconds: 30

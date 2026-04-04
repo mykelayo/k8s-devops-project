@@ -6,20 +6,21 @@ namespace: devops-app
 resources:
 - namespace.yaml
 - configmap.yaml
-- secret.yaml
 - deployment-backend.yaml
 - deployment-frontend.yaml
 - service-backend.yaml
 - service-frontend.yaml
 - ingress.yaml
 - hpa.yaml
+- pdb.yaml
+- networkpolicies.yaml
 
 images:
-- name: ${ECR_URL}/devops-project-backend
-  newName: ${ECR_URL}/devops-project-backend
+- name: REGISTRY/devops-project-backend
+  newName: REGISTRY/devops-project-backend
   newTag: latest
-- name: ${ECR_URL}/devops-project-frontend
-  newName: ${ECR_URL}/devops-project-frontend
+- name: REGISTRY/devops-project-frontend
+  newName: REGISTRY/devops-project-frontend
   newTag: latest
 
 commonLabels:

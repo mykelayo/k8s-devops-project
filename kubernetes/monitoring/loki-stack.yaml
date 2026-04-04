@@ -38,6 +38,8 @@ data:
       reject_old_samples: true
       reject_old_samples_max_age: 168h
 
+---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:

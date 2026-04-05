@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run tests locally before pushing
+# Run backend tests and Docker builds locally before pushing.
 
 set -e
 
@@ -19,8 +19,9 @@ cd ../app/backend
 if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
+
 source venv/bin/activate
-pip install -q -r requirements.txt
+pip install -q -r requirements.txt pytest pytest-cov
 
 # Run tests
 pytest tests/ -v --cov=. --cov-report=term

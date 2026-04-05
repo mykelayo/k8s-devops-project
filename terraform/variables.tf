@@ -94,5 +94,49 @@ variable "tags" {
     "Owner"       = "Michael"
     "ManagedBy"   = "Terraform"
     "Environment" = "Dev"
-    }
+  }
+}
+
+# ArgoCD
+
+variable "repo_url" {
+  description = "HTTPS URL of the GitHub repo ArgoCD watches"
+  type        = string
+  default     = "https://github.com/mykelayo/k8s-devops-project"
+}
+
+variable "target_revision" {
+  description = "Branch ArgoCD tracks"
+  type        = string
+  default     = "main"
+}
+
+variable "github_token" {
+  description = "Fine-grained GitHub PAT."
+  type        = string
+  sensitive   = true
+}
+
+variable "argocd_admin_password_bcrypt" {
+  description = "Bcrypt hash of ArgoCD admin password."
+  type        = string
+  sensitive   = true
+}
+
+variable "argocd_webhook_secret" {
+  description = "Shared secret for GitHub webhook validation."
+  type        = string
+  sensitive   = true
+}
+
+variable "argocd_host" {
+  description = "Public hostname for ArgoCD ingress (e.g. argocd.yourdomain.com)."
+  type        = string
+  default     = ""
+}
+
+variable "argocd_chart_version" {
+  description = "Argo CD Helm chart version"
+  type        = string
+  default     = "7.8.0"
 }

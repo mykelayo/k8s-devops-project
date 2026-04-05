@@ -1,59 +1,35 @@
 #!/bin/bash
-# Complete cleanup script for all resources
+# Complete cleanup script
 
 set -e
 
-echo "Starting cleanup process..."
-
-# Colors
 RED='\033[0;31m'
-YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Confirm cleanup
-read -p "${RED}This will delete ALL resources (EKS cluster, Argo CD, monitoring, etc.). Continue? (yes/no): ${NC}" confirm
+echo -e "${RED}This will destroy ALL resources including the EKS cluster.${NC}"
+read -p "Type 'yes' to continue: " confirm
 if [ "$confirm" != "yes" ]; then
-    echo -e "${YELLOW}Cleanup cancelled${NC}"
-    exit 0
+  echo -e "${YELLOW}Cancelled.${NC}"
+  exit 0
 fi
 
-# 1. Delete Argo CD applications
-echo -e "${YELLOW}Deleting Argo CD applications...${NC}"
-kubectl delete application devops-app -n argocd --ignore-not-found=true
+# 1. Remove Argo CD finalizer (prevents stuck resources)
+echo -e "${YELLOW}Removing ArgoCD finalizer...${NC}"
+kubectl patch application k8s-devops-project -n argocd \
+  --type json -p '[{"op":"remove","path":"/metadata/finalizers"}]' \
+  --ignore-not-found=true 2>/dev/null || true
 
-# 2. Delete Kubernetes resources
-echo -e "${YELLOW}Deleting Kubernetes resources...${NC}"
-kubectl delete namespace devops-app --ignore-not-found=true
-kubectl delete namespace monitoring --ignore-not-found=true
-kubectl delete namespace argocd --ignore-not-found=true
+# 2. Delete namespaces
+echo -e "${YELLOW}Deleting namespaces...${NC}"
+kubectl delete namespace devops-app --ignore-not-found=true 2>/dev/null || true
+kubectl delete namespace monitoring --ignore-not-found=true 2>/dev/null || true
+kubectl delete namespace argocd --ignore-not-found=true 2>/dev/null || true
 
-# 3. Clean up Helm releases
-echo -e "${YELLOW}Cleaning up Helm releases...${NC}"
-helm uninstall kube-prometheus-stack -n monitoring --ignore-not-found
-helm uninstall loki -n monitoring --ignore-not-found
+# 3. Let Terraform destroy everything else
+echo -e "${YELLOW}Running terraform destroy...${NC}"
+cd "$(dirname "$0")/../terraform"
+terraform destroy -auto-approve
 
-# 4. Delete CRDs
-echo -e "${YELLOW}Deleting CRDs...${NC}"
-kubectl delete crd applications.argoproj.io --ignore-not-found=true
-kubectl delete crd appprojects.argoproj.io --ignore-not-found=true
-kubectl delete crd prometheuses.monitoring.coreos.com --ignore-not-found=true
-kubectl delete crd servicemonitors.monitoring.coreos.com --ignore-not-found=true
-
-# 5. Destroy Terraform infrastructure
-if [ -d "terraform" ]; then
-    echo -e "${YELLOW}Destroying Terraform infrastructure...${NC}"
-    cd terraform
-    terraform destroy -auto-approve
-    cd ..
-fi
-
-# 6. Clean up Docker images
-read -p "${YELLOW}Remove local Docker images? (yes/no): ${NC}" clean_docker
-if [ "$clean_docker" = "yes" ]; then
-    echo -e "${YELLOW}Removing Docker images...${NC}"
-    docker rmi app-backend app-frontend --force || true
-fi
-
-echo -e "${GREEN}Cleanup complete!${NC}"
-echo -e "${YELLOW}Note: AWS resources (EKS, ECR, etc.) have been destroyed if Terraform was used.${NC}"
+echo -e "${GREEN}Teardown complete.${NC}"

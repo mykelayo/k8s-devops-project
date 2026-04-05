@@ -1,74 +1,104 @@
-.PHONY: help setup-cluster deploy-dev deploy-prod cleanup health-check run-tests logs-backend logs-frontend port-forward-grafana port-forward-argocd port-forward-backend port-forward-frontend get-all
+.PHONY: help \
+        tf-init tf-plan tf-apply tf-destroy \
+        health-check run-tests cleanup \
+        logs-backend logs-frontend \
+        port-forward-grafana port-forward-argocd \
+        port-forward-backend port-forward-frontend \
+        get-all
+
+# Help 
 
 help:
-	@echo "Available commands:"
-	@echo "  make setup-cluster   - Complete cluster setup (monitoring + Argo CD)"
-	@echo "  make deploy-dev      - Deploy application to dev"
-	@echo "  make deploy-prod     - Deploy application to prod"
-	@echo "  make health-check    - Run health checks"
-	@echo "  make cleanup         - Clean up all resources"
-	@echo "  make run-tests       - Run tests locally"
-	@echo "  make logs-backend    - Tail backend logs"
-	@echo "  make logs-frontend   - Tail frontend logs"
-	@echo "  make port-forward-grafana   - Port forward Grafana"
-	@echo "  make port-forward-argocd    - Port forward Argo CD"
-	@echo "  make port-forward-backend   - Port forward backend service"
-	@echo "  make port-forward-frontend  - Port forward frontend service"
-	@echo "  make get-all          - Get all resources in devops-app, monitoring, and argocd namespaces"
+	@echo ""
+	@echo "Infrastructure"
+	@echo "  make tf-init      terraform init"
+	@echo "  make tf-plan      terraform plan (set TF_VAR_* secrets first)"
+	@echo "  make tf-apply     terraform apply"
+	@echo "  make tf-destroy   full teardown via cleanup.sh"
+	@echo ""
+	@echo "Local dev"
+	@echo "  make run-tests    run backend tests + docker builds locally"
+	@echo "  make health-check check pod status and ArgoCD sync state"
+	@echo ""
+	@echo "Observability"
+	@echo "  make logs-backend          tail backend pod logs"
+	@echo "  make logs-frontend         tail frontend pod logs"
+	@echo "  make port-forward-grafana  localhost:3000"
+	@echo "  make port-forward-argocd   localhost:8080"
+	@echo "  make port-forward-backend  localhost:5000"
+	@echo "  make port-forward-frontend localhost:8080"
+	@echo "  make get-all               list all resources across namespaces"
+	@echo ""
+	@echo "NOTE: There are no manual deploy targets."
+	@echo "Deployments happen automatically:"
+	@echo "  push code → CI builds + updates kustomization.yaml → ArgoCD syncs cluster."
+	@echo ""
 
+# Infrastructure 
 
-setup-cluster:
-	@echo "Setting up complete cluster..."
-	@chmod +x scripts/setup-cluster.sh
-	@./scripts/setup-cluster.sh
+tf-init:
+	cd terraform && terraform init
 
-deploy-dev:
-	@echo "Deploying to development..."
-	@cd kubernetes/overlays/dev && kustomize build . | kubectl apply -f -
+tf-plan:
+	@echo "Make sure TF_VAR_github_token, TF_VAR_argocd_admin_password_bcrypt,"
+	@echo "and TF_VAR_argocd_webhook_secret are exported before running this."
+	cd terraform && terraform plan
 
-deploy-prod:
-	@echo "Deploying to production..."
-	@cd kubernetes/overlays/prod && kustomize build . | kubectl apply -f -
+tf-apply:
+	@echo "First-time apply on a new cluster requires two steps."
+	@echo "See terraform/modules/argocd/main.tf for instructions."
+	@echo ""
+	@echo "Continuing with full apply..."
+	cd terraform && terraform apply
 
-health-check:
-	@echo "Running health checks..."
-	@chmod +x scripts/health-check.sh
-	@./scripts/health-check.sh
-
-cleanup:
-	@echo "Starting cleanup..."
+tf-destroy:
 	@chmod +x scripts/cleanup.sh
 	@./scripts/cleanup.sh
 
+# Local dev
+
 run-tests:
-	@echo "Running tests locally..."
 	@chmod +x scripts/run-tests.sh
 	@./scripts/run-tests.sh
 
+health-check:
+	@chmod +x scripts/health-check.sh
+	@./scripts/health-check.sh
+
+# Logs
+
 logs-backend:
-	@kubectl logs -f -n devops-app deployment/backend
+	kubectl logs -f -n devops-app deployment/backend
 
 logs-frontend:
-	@kubectl logs -f -n devops-app deployment/frontend
+	kubectl logs -f -n devops-app deployment/frontend
+
+# Port forwards
 
 port-forward-grafana:
-	@kubectl port-forward -n monitoring service/kube-prometheus-stack-grafana 3000:80
+	kubectl port-forward -n monitoring service/kube-prometheus-stack-grafana 3000:80
 
 port-forward-argocd:
-	@kubectl port-forward -n argocd service/argocd-server 8080:443
+	kubectl port-forward -n argocd service/argocd-server 8080:80
 
 port-forward-backend:
-	@kubectl port-forward -n devops-app service/backend-service 5000:5000
+	kubectl port-forward -n devops-app service/backend-service 5000:5000
 
 port-forward-frontend:
-	@kubectl port-forward -n devops-app service/frontend-service 8080:80
+	kubectl port-forward -n devops-app service/frontend-service 8080:80
+
+# Observability
 
 get-all:
-	@echo "=== All Resources ==="
+	@echo "Application (devops-app)..."
 	@kubectl get all -n devops-app
 	@echo ""
-	@echo "=== Monitoring Resources ==="
+	@echo "Monitoring..."
 	@kubectl get all -n monitoring
 	@echo ""
-	@echo "=== Argo CD Resources ==="
+	@echo "ArgoCD..."
 	@kubectl get all -n argocd
+	@echo ""
+	@echo "ArgoCD Application status..."
+	@kubectl get application k8s-devops-project -n argocd \
+	  -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status

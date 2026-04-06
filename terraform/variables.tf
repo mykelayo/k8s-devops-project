@@ -140,3 +140,8 @@ variable "argocd_chart_version" {
   type        = string
   default     = "7.8.0"
 }
+
+variable "admin_role_arn" {
+  description = "IAM user or role ARN to grant cluster admin access"
+  type        = string
+}

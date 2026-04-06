@@ -20,6 +20,9 @@ module "eks" {
 
   enable_irsa = true
 
+  cloudwatch_log_group_retention_in_days = 30
+  cloudwatch_log_group_class             = "STANDARD"
+
   cluster_addons = {
     coredns = {
       most_recent = true
@@ -86,15 +89,6 @@ module "eks" {
   tags = var.tags
 }
 
-resource "aws_cloudwatch_log_group" "eks_cluster" {
-  name              = "/aws/eks/${var.cluster_name}/cluster"
-  retention_in_days = 30
-
-  tags = merge(var.tags, {
-    Name = "${var.cluster_name}-control-plane-logs"
-  })
-}
-
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.0"
@@ -110,4 +104,20 @@ module "ebs_csi_irsa_role" {
   }
 
   tags = var.tags
+}
+
+resource "aws_eks_access_entry" "admin" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = var.admin_role_arn
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "admin" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = var.admin_role_arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
 }

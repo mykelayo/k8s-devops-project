@@ -24,6 +24,7 @@ module "eks" {
   min_node_count      = var.min_node_count
   max_node_count      = var.max_node_count
   environment         = var.environment
+  admin_role_arn      = var.admin_role_arn
 
   depends_on = [module.vpc]
 }

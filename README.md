@@ -1,3 +1,8 @@
+Here's the updated README:
+
+```markdown
+# k8s-devops-project
+
 Kubernetes deployment on AWS EKS with GitOps, CI/CD, and full observability.
 
 ## Stack
@@ -20,7 +25,7 @@ GitHub Push
 GitHub Actions ──► Build & Push image to ECR
     │
     ▼
-Update K8s manifests in repo
+Update image tag in kustomization.yaml
     │
     ▼
 Argo CD detects change ──► Syncs to EKS cluster
@@ -32,7 +37,7 @@ Loki aggregates logs
 
 ## Prerequisites
 
-AWS CLI, Terraform, kubectl, Docker, Helm, Kustomize. 
+AWS CLI, Terraform, kubectl, Docker, Helm, Kustomize
 
 ## Quick Start
 
@@ -40,18 +45,20 @@ AWS CLI, Terraform, kubectl, Docker, Helm, Kustomize.
 git clone https://github.com/mykelayo/k8s-devops-project.git
 cd k8s-devops-project
 
-# 1. Provision EKS cluster
-cd terraform && terraform init && terraform apply -auto-approve
+# Export required secrets
+export TF_VAR_github_token=...
+export TF_VAR_argocd_admin_password_bcrypt=...
+export TF_VAR_argocd_webhook_secret=...
+export TF_VAR_admin_role_arn=arn:aws:iam::<account-id>:user/<your-user>
 
-# 2. Configure kubectl
+# Provision infrastructure
+make tf-apply
+
+# Configure kubectl
 aws eks update-kubeconfig --region us-east-1 --name k8s-devops-project
-
-# 3. Deploy app, monitoring, and Argo CD
-make setup-cluster
-
-# 4. Deploy application
-make deploy-dev
 ```
+
+After that, deployments are fully automated — push code and ArgoCD handles the rest.
 
 ## Project Structure
 
@@ -71,38 +78,56 @@ make deploy-dev
 └── Makefile
 ```
 
-## Common Commands
-
-```bash
-make deploy-dev            # Deploy to dev
-make deploy-prod           # Deploy to prod
-make health-check          # Run health checks
-make logs-backend          # Tail backend logs
-make logs-frontend         # Tail frontend logs
-make port-forward-grafana  # Grafana → localhost:3000
-make port-forward-argocd   # Argo CD UI → localhost:8080
-make get-all               # View all resources across namespaces
-make cleanup               # Tear down all resources
-```
-
 ## CI/CD Flow
 
 1. Push to `main` triggers GitHub Actions
-2. Workflow builds Docker images and pushes to ECR
-3. Workflow updates image tags in Kubernetes manifests
-4. Argo CD detects the manifest change and syncs to the cluster
+2. Builds Docker images and pushes to ECR
+3. Updates image tag in `kustomization.yaml`
+4. Argo CD detects the change and syncs to the cluster
+
+No manual deploy targets exist — the pipeline handles everything.
+
+## Make Commands
+
+```bash
+# Infrastructure
+make tf-init      # terraform init
+make tf-plan      # terraform plan
+make tf-apply     # terraform apply
+make tf-destroy   # full teardown via cleanup.sh
+
+# Local dev
+make run-tests    # backend tests + docker builds locally
+make health-check # pod status and ArgoCD sync state
+
+# Logs
+make logs-backend
+make logs-frontend
+
+# Port forwards
+make port-forward-grafana   # localhost:3000
+make port-forward-argocd    # localhost:8080
+make port-forward-backend   # localhost:5000
+make port-forward-frontend  # localhost:8080
+
+# Observability
+make get-all      # all resources across namespaces
+```
 
 ## Monitoring
 
-Prometheus and Grafana are installed via the `kube-prometheus-stack` Helm chart. Loki handles log aggregation. Access Grafana at `localhost:3000` via `make port-forward-grafana`.
+Prometheus and Grafana via `kube-prometheus-stack`. Loki for log aggregation.
 
-Default credentials are printed during `make setup-cluster`.
+```bash
+make port-forward-grafana   # Grafana → localhost:3000
+make port-forward-argocd    # Argo CD UI → localhost:8080
+```
 
 ## Teardown
 
 ```bash
-make cleanup
-cd terraform && terraform destroy -auto-approve
+make tf-destroy
 ```
 
-> Heads up: EKS and EC2 worker nodes incur AWS costs. Run `terraform destroy` promptly when done.
+> EKS and EC2 worker nodes incur AWS costs. Run teardown promptly when done.
+```

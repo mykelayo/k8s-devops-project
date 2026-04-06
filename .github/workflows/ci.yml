@@ -51,8 +51,8 @@ jobs:
     - name: Scan Python dependencies
       run: |
         cd app/backend
-        pip install safety
-        safety scan -r requirements.txt --continue-on-error
+        pip install pip-audit
+        pip-audit -r requirements.txt --skip-editable
 
   build-and-push:
     runs-on: ubuntu-latest

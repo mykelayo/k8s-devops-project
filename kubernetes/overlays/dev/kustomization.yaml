@@ -13,7 +13,7 @@ patches:
 images:
 - name: REGISTRY/devops-project-backend
   newName: 865189667386.dkr.ecr.us-east-1.amazonaws.com/k8s-devops-project-backend-dev
-  newTag: 71c2aa5479ed92fadbc0aa45d43597aa248ccd92
+  newTag: 8a2b74642a837eccd05222997f701b66b9f11182
 - name: REGISTRY/devops-project-frontend
   newName: 865189667386.dkr.ecr.us-east-1.amazonaws.com/k8s-devops-project-frontend-dev
-  newTag: 71c2aa5479ed92fadbc0aa45d43597aa248ccd92
+  newTag: 8a2b74642a837eccd05222997f701b66b9f11182

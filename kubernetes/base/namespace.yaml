@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-app
+  labels:
+    name: devops-app
+    environment: base
+    app.kubernetes.io/name: devops-dashboard
+    app.kubernetes.io/part-of: devops-project

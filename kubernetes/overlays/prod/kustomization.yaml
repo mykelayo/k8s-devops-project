@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: devops-app
+
+resources:
+- ../../base
+
+patches:
+- path: replica-count.yaml
+- path: configmap-patch.yaml
+
+images:
+- name: REGISTRY/devops-project-backend
+  newName: REGISTRY/devops-project-backend
+  newTag: latest
+- name: REGISTRY/devops-project-frontend
+  newName: REGISTRY/devops-project-frontend
+  newTag: latest

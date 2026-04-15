@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  devops-dashboard.json: |
+    {
+      "title": "Kubernetes Cluster Metrics",
+      "uid": "devops-dashboard",
+      "panels": [
+        {
+          "title": "API Request Rate",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(http_requests_total[5m])",
+              "legendFormat": "{{method}} {{endpoint}}"
+            }
+          ]
+        },
+        {
+          "title": "Pod Status",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_ready{namespace='devops-app'} == 1)"
+            }
+          ]
+        },
+        {
+          "title": "CPU Usage",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace='devops-app'}[5m])) by (pod)"
+            }
+          ]
+        },
+        {
+          "title": "Memory Usage",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace='devops-app'}) by (pod)"
+            }
+          ]
+        }
+      ]
+    }
